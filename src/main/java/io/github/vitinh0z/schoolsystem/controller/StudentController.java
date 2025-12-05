@@ -1,50 +1,70 @@
 package io.github.vitinh0z.schoolsystem.controller;
 
 
+import io.github.vitinh0z.schoolsystem.model.ClassEntity;
 import io.github.vitinh0z.schoolsystem.model.Student;
 import io.github.vitinh0z.schoolsystem.repository.ClassRepository;
 import io.github.vitinh0z.schoolsystem.repository.StudentRepository;
+import jakarta.persistence.Id;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-@RestController("/students")
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/students")
 public class StudentController {
 
     @Autowired
     private ClassRepository classRepository;
 
+    @Autowired
     private StudentRepository studentRepository;
 
 
-
-    private Student student;
-
-
-
-    public void getAllStudents() {
+    @PostMapping
 
 
 
-        classRepository.findAll();
+    @GetMapping
+    public List<Student> getAllStudents() {
 
-    }
+        return studentRepository.findAll();
 
-    public String updateStudent(@RequestParam("id") String name) {
+    }   
+
+    @PutMapping
+    public String updateStudent(@RequestParam("id") Integer id,
+                                @RequestParam("name") String name,
+                                @RequestParam("classId") Integer classId
+    ){
+
+        Student findStudent = studentRepository.findById(id).orElseThrow(()
+                -> new RuntimeException("Estudante não Encotrado")
+        );
+
+        findStudent.setName(name);
+        findStudent.setClassId(classId);
+        studentRepository.save(findStudent);
 
         return "/updateStudent=sucess";
 
     }
 
+    @DeleteMapping("/{id}")
+    public String deleteStudent(@PathVariable("id") Integer id){
 
-    public String deleteStudent(@RequestParam("id") Integer id){
+        Student findStudent = studentRepository.findById(id).orElseThrow(()
+                -> new RuntimeException("Estudante não Encotrado")
+        );
 
-
-
-
+        studentRepository.deleteById(id);
         return "/deleteStudent=sucess";
 
     }
+
 
     public void getDashboardStatus(){
      // realize a dashboard with number of students

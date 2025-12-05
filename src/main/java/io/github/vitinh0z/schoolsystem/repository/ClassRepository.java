@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface ClassRepository extends JpaRepository<ClassEntity, Integer> {
 
-    List<ClassEntity> findByDegreeId (ClassEntity classEntity);
+    List<ClassEntity> findByDegreeId (Integer degreeId);
 
 }

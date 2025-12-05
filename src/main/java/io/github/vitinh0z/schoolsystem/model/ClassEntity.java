@@ -20,14 +20,13 @@ public class ClassEntity {
     private Integer id;
     @Column(nullable = false)
     private String name;
+
     @Column(name = "degree_id", nullable = false)
     private Integer degreeId;
 
-    @OneToMany
-    List<Student> students = new ArrayList<>();
-
-    @OneToMany
-    List<Degree> degrees = new ArrayList<>();
+    @ManyToOne // Uma Turma pertence a UMA Serie
+    @JoinColumn(name = "degree_id", insertable = false, updatable = false)
+    private Degree degree;
 
 
 

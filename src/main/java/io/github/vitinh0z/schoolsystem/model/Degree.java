@@ -19,8 +19,6 @@ public class Degree {
     @Column(nullable = false)
     private String name;
 
-    @OneToOne
-    private Degree degree;
 
 
 }
