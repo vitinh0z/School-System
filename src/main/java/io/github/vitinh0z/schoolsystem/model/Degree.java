@@ -5,31 +5,22 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Table
-public class ClassEntity {
+public class Degree {
 
     @Id
     private Integer id;
+
     @Column(nullable = false)
     private String name;
-    @Column(name = "degree_id", nullable = false)
-    private Integer degreeId;
 
-    @OneToMany
-    List<Student> students = new ArrayList<>();
-
-    @OneToMany
-    List<Degree> degrees = new ArrayList<>();
-
-
+    @OneToOne
+    private Degree degree;
 
 
 }

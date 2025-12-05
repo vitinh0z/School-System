@@ -1,16 +1,15 @@
 package io.github.vitinh0z.schoolsystem.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @AllArgsConstructor
-@Data
 @NoArgsConstructor
+@Data
+@Table
 public class Student {
 
     @Id
@@ -21,5 +20,10 @@ public class Student {
 
     @Column(name = "class_id", nullable = false)
     private Integer degreeId;
+
+    @OneToOne(optional = false)
+    private ClassEntity classEntity;
+
+
 
 }
