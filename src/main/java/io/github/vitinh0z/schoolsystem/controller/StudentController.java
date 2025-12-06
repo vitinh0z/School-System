@@ -25,6 +25,11 @@ public class StudentController {
 
 
     @PostMapping
+    public Student createStudent (@RequestBody Student student){
+
+        return studentRepository.save(student);
+
+    }
 
 
 
