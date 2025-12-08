@@ -1,4 +1,9 @@
 package io.github.vitinh0z.schoolsystem.repository;
 
-public interface RelationshipRepository {
+import io.github.vitinh0z.schoolsystem.model.Relationship;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface RelationshipRepository extends JpaRepository<Relationship, Integer> {
+
+
 }

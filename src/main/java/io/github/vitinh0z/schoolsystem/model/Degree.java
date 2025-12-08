@@ -1,6 +1,7 @@
 package io.github.vitinh0z.schoolsystem.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,7 @@ public class Degree {
     @Id
     private Integer id;
 
+    @NotBlank(message = "É Obrigatorio nivel de ensino")
     @Column(nullable = false)
     private String name;
 
