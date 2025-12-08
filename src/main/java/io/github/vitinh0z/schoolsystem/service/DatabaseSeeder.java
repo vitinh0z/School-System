@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Slf4j
 @Component
@@ -24,21 +25,33 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final ClassRepository classRepository;
     private final StudentRepository studentRepository;
     private final ObjectMapper objectMapper;
-    private final RelationshipRepository relationshipRepository;
+    private final RelationshipRepository relationshipRepository; // Supondo que este repo gerencia SchoolSchedule
     private final TeacherRepository teacherRepository;
     private final MatterRepository matterRepository;
+
 
     @Override
     public void run(String... args) throws Exception { // método responsável por criar base de dados
         // assim que o spring iniciar
-        log.info("Criando base de dados");
+
+        log.info("Criando base de dados...");
+
+        // Limpeza opcional para evitar duplicidade ao reiniciar
+        relationshipRepository.deleteAll();
+        studentRepository.deleteAll();
+        classRepository.deleteAll();
+        teacherRepository.deleteAll();
+        matterRepository.deleteAll();
+        degreeRepository.deleteAll();
 
         loadDegree();
         loadClass();
         loadsTeacher();
         loadMatters();
         loadsStudent();
+
         loadRelationShip();
+        log.info("Base de dados criada com sucesso!");
     }
 
     @Data
@@ -56,6 +69,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         private Integer id;
         private Integer teacherId;
         private Integer matterId;
+
         private List<RelDegreeDTO> degrees = new ArrayList<>();
         // professor de uma lista de cursos que da aula
     }
@@ -84,34 +98,38 @@ public class DatabaseSeeder implements CommandLineRunner {
 
             List<RelTeacherDTO> relationshipsDTOS = this.objectMapper.
                     readValue(inputStream, new TypeReference<>() {});
-            List<Relationship> relationshipsEntities = new ArrayList<>();
+            List<SchoolSchedule> relationshipsEntities = new ArrayList<>();
 
             /*
-            *
-            * passamos dentro da classe professores e pegamos os 'cursos'
-            * depois pegar qual sala do curso o professor da aulas
-            *
-            * Objetivo é achar o json para ele ficar: Professor + curso + sala
-            * */
+             *
+             * passamos dentro da classe professores e pegamos os 'cursos'
+             * depois pegar qual sala do curso o professor da aulas
+             *
+             * Objetivo é achar o json para ele ficar: Professor + curso + sala
+             * */
 
             for (RelTeacherDTO teachersDto : relationshipsDTOS){
                 for (RelDegreeDTO degreesDto : teachersDto.getDegrees()){
                     for (RelClassDTO classesDto : degreesDto.getClasses()){
 
-                        Relationship relationship = new Relationship();
+                        SchoolSchedule schoolSchedule = new SchoolSchedule();
 
-                        Teacher teacher = new Teacher();
 
-                        teacher.setId(teachersDto.getTeacherId());
-                        relationship.setTeacher(teacher);
+                        if (teachersDto.getTeacherId() != null) {
+                            schoolSchedule.setTeacher(teacherRepository.getReferenceById
+                                    (teachersDto.getTeacherId())
+                            );
+                        }
 
-                        Matter matter = new Matter();
-                        matter.setId(teachersDto.getMatterId());
-                        relationship.setMatter(matter);
+                        if (teachersDto.getMatterId() != null) {
+                            schoolSchedule.setMatter(matterRepository.getReferenceById
+                                    (teachersDto.getMatterId())
+                            );
+                        }
 
-                        ClassEntity classEntity = new ClassEntity();
+                        // Lógica da turma mantida, mas adaptada para pegar referencia
 
-                        // nao sei se foi de propósito, mas no json tem vezes que manda classId
+                        // Não sei se foi de propósito, mas no json tem vezes que manda classId
                         // e classPosition. Para isso, precisamos verificar se
                         // um estiver nulo, pegaremos o outro.
                         // ------------------------------------------------------------------------
@@ -119,28 +137,30 @@ public class DatabaseSeeder implements CommandLineRunner {
 
                         /* (isso se chama Operador Ternário. É a mesma coisa de fazer:)
 
-                        * integer idTurma =
+                         * integer idTurma =
 
-                        * if (idTurma!= null){
+                         * if (idTurma!= null){
 
-                        *   idTurma = classdto.getClassId()
+                         * idTurma = classdto.getClassId()
 
-                        * }
-                        *
-                        * else {
-                        *   idTurma = classesDto.getClassPosition()
-                        * }
-                        *
-                        * */
+                         * }
+                         *
+                         * else {
+                         * idTurma = classesDto.getClassPosition()
+                         * }
+                         *
+                         * */
 
                         Integer idTurma = classesDto.getClassId() != null ? classesDto.getClassId()
                                 : classesDto.getClassPosition();
-                        classEntity.setId(idTurma);
-                        relationship.setClassEntity(classEntity);
 
+                        if (idTurma != null) {
+                            ClassEntity classRef = classRepository.getReferenceById(idTurma);
+                            schoolSchedule.setClassEntity(classRef);
+                        }
 
                         // adicionamos ele na lista
-                        relationshipsEntities.add(relationship);
+                        relationshipsEntities.add(schoolSchedule);
 
                     }
                 }
@@ -148,7 +168,8 @@ public class DatabaseSeeder implements CommandLineRunner {
             relationshipRepository.saveAll(relationshipsEntities);
 
         } catch (Exception e) {
-            log.error("Erro: {}", e.getMessage());
+            log.error("Erro ao carregar relacionamentos: {}", e.getMessage());
+            e.printStackTrace(); // Ajuda a ver o erro real
         }
     }
 
@@ -156,18 +177,23 @@ public class DatabaseSeeder implements CommandLineRunner {
         try (InputStream inputStream = new ClassPathResource("data/matters.json").getInputStream()){
 
             List<Matter> matters = this.objectMapper.readValue(inputStream,
-                    new TypeReference<>() {
-                    }
+                    new TypeReference<>() {}
             );
+
+            // limpar ID para evitar erro
+            matters.forEach(m -> m.setId(null));
 
             matterRepository.saveAll(matters);
 
         } catch (IOException e) {
-            log.error("Erro: {}", e.getMessage());
+            log.error("Erro Matters: {}", e.getMessage());
         }
     }
 
     public void loadClass() {
+
+        Random random = new Random();
+        List<Degree> allDegrees = degreeRepository.findAll();
 
         try (InputStream inputStream = new ClassPathResource("data/classes.json").getInputStream()) {
             List<ClasseDTO> classeDTOS = this.objectMapper.
@@ -175,20 +201,27 @@ public class DatabaseSeeder implements CommandLineRunner {
 
             List<ClassEntity> classEntities = new ArrayList<>();
 
-            int id = 1;
-            for (ClasseDTO item : classeDTOS) {
+
+            for (int i =0; i< allDegrees.size();i++) {
+
+                Degree degree = allDegrees.get(i);
 
                 ClassEntity classEntity = new ClassEntity();
-                classEntity.setId(id++);
-                classEntity.setName(item.getName());
-                classEntity.setDegreeId(1);
+                classEntity.setId(null);
+
+                classEntity.setDegreeId(degree.getId());
+
+                ClasseDTO nomeDto = classeDTOS.get(i % classeDTOS.size());
+                classEntity.setName(nomeDto.getName());
+
                 classEntities.add(classEntity);
+
             }
 
             classRepository.saveAll(classEntities);
 
         } catch (IOException e) {
-            log.error("erro: {}", e.getMessage());
+            log.error("Erro Class: {}", e.getMessage());
         }
     }
 
@@ -200,10 +233,19 @@ public class DatabaseSeeder implements CommandLineRunner {
                     new TypeReference<>() {}
             );
 
-            teacherRepository.saveAll(teachers);
+            // passar sobre a lista carregada, limpar ID e garantir Matéria
+            teachers.forEach(teacher -> {
+                teacher.setId(null);
+                // Garante que tenha matéria para não dar erro de validação @NotBlank
+                if(teacher.getSubject() == null || teacher.getSubject().isEmpty()) {
+                    teacher.setSubject("Matéria Geral");
+                }
+            });
+
+            teacherRepository.saveAll(teachers); // Salva a lista
 
         } catch (IOException e){
-            log.error("Erro: {}", e.getMessage());
+            log.error("Erro Teacher: {}", e.getMessage());
         }
     }
 
@@ -215,12 +257,14 @@ public class DatabaseSeeder implements CommandLineRunner {
                     new TypeReference<>() {}
             );
 
+            students.forEach(student -> student.setId(null));
+
             studentRepository.saveAll(students);
 
         } catch (FileNotFoundException e){
             log.error("Arquivo não encotrado: {}", e.getMessage());
         } catch (IOException e) {
-            log.error("Erro: {}", e.getMessage());
+            log.error("Erro Student: {}", e.getMessage());
         }
     }
 
@@ -230,13 +274,17 @@ public class DatabaseSeeder implements CommandLineRunner {
             List<Degree> degrees = this.objectMapper.readValue(inputStream,
                     new TypeReference<>() {}
             );
+
+            // Limpar IDs
+            degrees.forEach(d -> d.setId(null));
+
             degreeRepository.saveAll(degrees);
 
         } catch (FileNotFoundException e){
             log.error("Arquivo não encotrado {}", e.getMessage());
 
         } catch(IOException e){
-            log.error("Erro {}", e.getMessage());
+            log.error("Erro Degree: {}", e.getMessage());
         }
 
     }

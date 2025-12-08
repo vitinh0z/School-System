@@ -8,8 +8,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "relationships")
-public class Relationship {
+@Entity
+@Table(name = "school_schedule")
+public class SchoolSchedule {
 
 
     @Id

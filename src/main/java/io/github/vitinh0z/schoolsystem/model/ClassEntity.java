@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 public class ClassEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @NotBlank(message = "O nome da turma é obrigatório" )

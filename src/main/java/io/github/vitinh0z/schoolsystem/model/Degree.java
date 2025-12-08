@@ -15,12 +15,11 @@ import lombok.NoArgsConstructor;
 public class Degree {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @NotBlank(message = "É Obrigatorio nivel de ensino")
     @Column(nullable = false)
     private String name;
-
-
 
 }
