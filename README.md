@@ -3,6 +3,10 @@
 > **ACESSE A APLICAÇÃO ONLINE (DEPLOY):**  
 > 👉 [https://school-system-api-3au1.onrender.com](https://school-system-api-3au1.onrender.com)
 
+Hospedei a aplicação na opção Free-Tier do Render, por isso, a aplicação demora 1-2 min para iniciar (Regras das plataforma de hospedagem)
+
+Possivelmente ao iniciar, irá demorar 1 minuto para que os dados do banco sejam recebidos no Front End
+
 ---
 
 ![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=java&logoColor=white)
