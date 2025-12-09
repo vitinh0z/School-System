@@ -12,6 +12,21 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
     <div class="container">
         <a class="navbar-brand" href="#">🏫 Sistema Escolar</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="index.html">Alunos (Tela 1)</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="teachers.html">Professores (Tela 2)</a>
+                </li>
+            </ul>
+        </div>
     </div>
 </nav>
 
@@ -34,7 +49,7 @@
                     <h5 class="mb-3">Simulação</h5>
                     <p class="text-muted">Gera 300 alunos distribuídos aleatoriamente.</p>
                     <button onclick="gerarAlunos()" class="btn btn-success btn-lg">
-                        Gerar +300 Alunos
+                        🎲 Gerar +300 Alunos
                     </button>
                 </div>
             </div>
@@ -44,15 +59,22 @@
     <div class="card shadow-sm">
         <div class="card-header bg-white py-3">
             <div class="row align-items-center">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <h5 class="mb-0">Lista de Alunos</h5>
                 </div>
-                <div class="col-md-4">
+
+                <div class="col-md-3">
+                    <button onclick="abrirModalCriar()" class="btn btn-outline-primary w-100">
+                        ➕ Novo Aluno
+                    </button>
+                </div>
+
+                <div class="col-md-3">
                     <select id="filtroSerie" class="form-select" onchange="aplicarFiltros()">
                         <option value="">Todas as Séries</option>
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <select id="filtroTurma" class="form-select" onchange="aplicarFiltros()">
                         <option value="">Todas as Turmas</option>
                     </select>
@@ -67,7 +89,8 @@
                         <th>ID</th>
                         <th>Nome do Aluno</th>
                         <th>Turma (Class)</th>
-                        <th>Série (Degree)</th> <th class="text-end">Ações</th>
+                        <th>Série (Degree)</th>
+                        <th class="text-end">Ações</th>
                     </tr>
                     </thead>
                     <tbody id="tabelaCorpo">
@@ -105,26 +128,60 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalCriar" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Cadastrar Novo Aluno</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Nome</label>
+                    <input type="text" class="form-control" id="newName" placeholder="Nome do aluno">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Turma</label>
+                    <select class="form-select" id="newClassId">
+                        <option value="">Selecione a turma...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="salvarNovoAluno()">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     let todosAlunos = [];
     let todasTurmas = [];
     let todasSeries = [];
+    let modalEditarInstance;
+    let modalCriarInstance;
 
     window.onload = async () => {
+        const modalEditEl = document.getElementById('modalEditar');
+        const modalCreateEl = document.getElementById('modalCriar');
+
+        if (modalEditEl) modalEditarInstance = new bootstrap.Modal(modalEditEl);
+        if (modalCreateEl) modalCriarInstance = new bootstrap.Modal(modalCreateEl);
+
         await carregarCombos();
         await carregarGrafico();
         await carregarTabela();
     };
 
-
     async function carregarCombos() {
-
         const resSeries = await fetch('/degrees/all');
         if(resSeries.ok) {
             todasSeries = await resSeries.json();
             const selectSerie = document.getElementById('filtroSerie');
+            selectSerie.innerHTML = '<option value="">Todas as Séries</option>';
             todasSeries.forEach(s => {
                 selectSerie.innerHTML += `<option value="${s.id}">${s.name}</option>`;
             });
@@ -136,27 +193,35 @@
 
             const selectTurma = document.getElementById('filtroTurma');
             const selectEditTurma = document.getElementById('editClassId');
+            const selectNewTurma = document.getElementById('newClassId');
+
+            selectTurma.innerHTML = '<option value="">Todas as Turmas</option>';
+            selectEditTurma.innerHTML = '';
+            selectNewTurma.innerHTML = '<option value="">Selecione...</option>';
 
             todasTurmas.forEach(t => {
                 const option = `<option value="${t.id}">${t.name}</option>`;
                 selectTurma.innerHTML += option;
                 selectEditTurma.innerHTML += option;
+                selectNewTurma.innerHTML += option;
             });
         }
     }
 
     async function carregarTabela() {
         const res = await fetch('/students/all');
-        todosAlunos = await res.json();
-        desenharTabela(todosAlunos);
+        if(res.ok) {
+            todosAlunos = await res.json();
+            desenharTabela(todosAlunos);
+        }
     }
 
     function desenharTabela(listaAlunos) {
         const tbody = document.getElementById('tabelaCorpo');
-        tbody.innerHTML = '';
+
+        let htmlBuffer = '';
 
         listaAlunos.forEach(aluno => {
-
             let nomeTurma = aluno.classEntity ? aluno.classEntity.name : `ID: ${aluno.classId}`;
             let nomeSerie = (aluno.classEntity && aluno.classEntity.degreeId) ? `Série ID: ${aluno.classEntity.degreeId}` : '-';
 
@@ -165,20 +230,21 @@
                 if(serieEncontrada) nomeSerie = serieEncontrada.name;
             }
 
-            const tr = `
-                    <tr>
-                        <td>${aluno.id}</td>
-                        <td>${aluno.name}</td>
-                        <td>${nomeTurma}</td>
-                        <td>${nomeSerie}</td>
-                        <td class="text-end">
-                            <button onclick="abrirModalEdicao(${aluno.id})" class="btn btn-sm btn-outline-primary">Editar</button>
-                            <button onclick="deletarAluno(${aluno.id})" class="btn btn-sm btn-outline-danger">Excluir</button>
-                        </td>
-                    </tr>
-                `;
-            tbody.innerHTML += tr;
+            htmlBuffer += `
+            <tr>
+                <td>${aluno.id}</td>
+                <td>${aluno.name}</td>
+                <td>${nomeTurma}</td>
+                <td>${nomeSerie}</td>
+                <td class="text-end">
+                    <button onclick="abrirModalEdicao(${aluno.id})" class="btn btn-sm btn-outline-primary">Editar</button>
+                    <button onclick="deletarAluno(${aluno.id})" class="btn btn-sm btn-outline-danger">Excluir</button>
+                </td>
+            </tr>
+            `;
         });
+
+        tbody.innerHTML = htmlBuffer;
     }
 
     function aplicarFiltros() {
@@ -195,7 +261,6 @@
                 }
             }
 
-            // Verifica Turma
             if (idTurma) {
                 if (aluno.classId != idTurma) {
                     passouTurma = false;
@@ -217,14 +282,11 @@
 
     async function deletarAluno(id) {
         if(confirm("Tem certeza?")) {
-            await fetch(`/students/delete/${id}`, { method: 'DELETE' }); // Verifique se sua rota é /students/{id} ou /students/delete/{id}
+            await fetch(`/students/delete/${id}`, { method: 'DELETE' });
             await carregarTabela();
             carregarGrafico();
         }
     }
-
-
-    let modalBootstrap;
 
     function abrirModalEdicao(id) {
         const aluno = todosAlunos.find(a => a.id === id);
@@ -234,8 +296,11 @@
         document.getElementById('editName').value = aluno.name;
         document.getElementById('editClassId').value = aluno.classId;
 
-        modalBootstrap = new bootstrap.Modal(document.getElementById('modalEditar'));
-        modalBootstrap.show();
+        if (modalEditarInstance) modalEditarInstance.show();
+    }
+
+    function abrirModalCriar() {
+        if (modalCriarInstance) modalCriarInstance.show();
     }
 
     async function salvarEdicao() {
@@ -253,21 +318,57 @@
         });
 
         if(response.ok) {
-            modalBootstrap.hide();
+            modalEditarInstance.hide();
             alert("Aluno atualizado!");
-
             await carregarTabela();
-
             carregarGrafico();
         } else {
             alert("Erro ao salvar. Verifique o console.");
         }
     }
 
+    async function salvarNovoAluno() {
+        const nome = document.getElementById('newName').value;
+        const turmaId = document.getElementById('newClassId').value;
+
+        if(!nome || !turmaId) {
+            alert("Preencha todos os campos!");
+            return;
+        }
+
+
+        const dados = {
+            name: nome,
+            classId: parseInt(turmaId)
+        };
+
+        const response = await fetch('/students/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dados)
+        });
+
+        if(response.ok) {
+            modalCriarInstance.hide();
+            alert("Aluno criado com sucesso!");
+
+            document.getElementById('newName').value = '';
+            document.getElementById('newClassId').value = '';
+
+            await carregarTabela();
+            carregarGrafico();
+        } else {
+
+            console.error(await response.text());
+            alert("Erro ao criar aluno. Status: " + response.status);
+        }
+    }
+
     async function carregarGrafico() {
         const resposta = await fetch('/students/dashboard/degree');
-        const dados = await resposta.json();
+        if(!resposta.ok) return;
 
+        const dados = await resposta.json();
 
         const canvas = document.getElementById('meuGrafico');
         if (window.meuGraficoChart) {
@@ -284,7 +385,7 @@
                 labels: nomes,
                 datasets: [{
                     data: contagem,
-                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
                 }]
             },
             options: { responsive: true, maintainAspectRatio: false }

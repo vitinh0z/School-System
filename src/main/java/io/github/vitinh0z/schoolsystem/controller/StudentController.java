@@ -22,7 +22,7 @@ public class StudentController {
     private final StudentRepository studentRepository;
 
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<Student> createStudent (@Valid @RequestBody Student student){
 
         return ResponseEntity.ok(studentRepository.save(student));

@@ -25,7 +25,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final ClassRepository classRepository;
     private final StudentRepository studentRepository;
     private final ObjectMapper objectMapper;
-    private final RelationshipRepository relationshipRepository; // Supondo que este repo gerencia SchoolSchedule
+    private final SchoolSchedulerRepository schoolSchedulerRepository; // Supondo que este repo gerencia SchoolSchedule
     private final TeacherRepository teacherRepository;
     private final MatterRepository matterRepository;
 
@@ -37,7 +37,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         log.info("Criando base de dados...");
 
         // Limpeza opcional para evitar duplicidade ao reiniciar
-        relationshipRepository.deleteAll();
+        schoolSchedulerRepository.deleteAll();
         studentRepository.deleteAll();
         classRepository.deleteAll();
         teacherRepository.deleteAll();
@@ -165,7 +165,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                     }
                 }
             }
-            relationshipRepository.saveAll(relationshipsEntities);
+            schoolSchedulerRepository.saveAll(relationshipsEntities);
 
         } catch (Exception e) {
             log.error("Erro ao carregar relacionamentos: {}", e.getMessage());

@@ -66,6 +66,4 @@ public class TeacherController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-
-
 }
