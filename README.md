@@ -1,132 +1,235 @@
-# 🏫 Sistema Escolar (School System)
+# 🏫 Sistema Escolar (School System API) - Teste Tecnico Estágio
 
-> **Desafio Técnico Fullstack** - Simulação de um Relatório Operável para Instituições de Ensino.
+> **ACESSE A APLICAÇÃO ONLINE (DEPLOY):**  
+> 👉 [https://school-system-api-3au1.onrender.com](https://school-system-api-3au1.onrender.com)
+
+Hospedei a aplicação na opção Free-Tier do Render, por isso, a aplicação demora 1-2 min para iniciar (Regras das plataforma de hospedagem)
+
+Possivelmente ao iniciar, irá demorar 1 minuto para que os dados do banco sejam recebidos no Front End
+
+---
 
 ![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=java&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.0-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
-![Bootstrap](https://img.shields.io/badge/Bootstrap-5-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)
-![Javascript](https://img.shields.io/badge/JavaScript-ES6-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
-## 📋 Índice
+## Visão Geral
 
-- [Visão Geral](#-visão-geral)
-- [Funcionalidades](#-funcionalidades)
-- [Tecnologias](#-tecnologias)
-- [Arquitetura e Decisões Técnicas](#-arquitetura-e-decisões-técnicas)
-- [Como Rodar o Projeto](#-como-rodar-o-projeto)
-- [Documentação da API](#-documentação-da-api)
-- [Estrutura do Banco de Dados](#-estrutura-do-banco-de-dados)
-- [Contribuição](#-contribuição)
+O **School System** é um sistema de gerenciamento acadêmico focado em performance, integridade de dados e arquitetura limpa. Embora possua uma interface visual para demonstração, o coração do projeto é uma **API RESTful robusta** desenvolvida para resolver problemas complexos de alocação de turmas, gestão de grade horária, análise estatística tratamentos de possiveis erros.
+
+O foco deste projeto é visa demonstrar boas práticas de engenharia de software no **Backend**, utilizando o ecossistema Java para garantir escalabilidade, manutenção e segurança.
 
 ---
 
-## 🔍 Visão Geral
+## Por que Java e Spring Boot?
 
-O **School System** é uma solução fullstack desenvolvida para resolver problemas de alocação e distribuição em escolas. O sistema foca na gestão eficiente de alunos, turmas e grade horária de professores, oferecendo visualização de dados estatísticos em tempo real.
+A escolha tecnológica foi estratégica, visando simular um ambiente corporativo de alto confiabilidade para usuários e clientes
 
-O projeto foi construído com foco em **Performance** (otimização de renderização no front-end) e **Integridade de Dados** (validações robustas no back-end).
-
----
-
-## ✨ Funcionalidades
-
-### 🎓 Módulo de Alunos (Tela 1)
-- **Dashboard Estatístico:** Gráfico de pizza interativo mostrando a distribuição de alunos por série.
-- **Gerador de Massa (Seeder):** Algoritmo capaz de gerar e distribuir 300+ alunos aleatoriamente entre as turmas com um clique.
-- **Gestão Completa:**
-  - Cadastro unitário de alunos.
-  - Edição de nome e remanejamento de turma.
-  - Exclusão de registros.
-- **Filtros Dinâmicos:** Filtragem em tempo real por Série (Degree) e Turma (Class).
-
-### 👨‍🏫 Módulo de Grade Horária (Tela 2)
-- **Gestão de Professores:** Cadastro rápido de novos docentes e suas especialidades.
-- **Agendamento de Aulas:** Criação de relacionamentos entre Professor, Matéria e Turma.
-- **Visualização Hierárquica:** Tabela clara mostrando quem dá aula, de quê, para qual turma.
-- **Visualização de Alunos ("Drill-down"):** Botão para visualizar a lista de alunos matriculados na série daquele professor específico.
+1. **Robustez e Tipagem:** A tipagem estática do Java previne uma classe inteira de erros comuns em tempo de execução, garantindo que regras de negócio críticas não quebrem em produção.
+2. **Ecossistema Enterprise:** O Spring Boot é o padrão global para microsserviços. Sua capacidade de autoconfiguração aliada à Injeção de Dependência (IoC) permite focar puramente na lógica de domínio.
+3. **Escalabilidade e Performance:** A JVM moderna oferece gerenciamento de memória e Garbage Collection otimizados para lidar com alta concorrência e processamento de dados massivos.
+4. **Dominio da Tecnologia:** E Tecnologia onde tenho mais experiência
 
 ---
 
-## 🛠️ Tecnologias
+## Stack Tecnológica
 
-### Backend
-- **Linguagem:** Java 17
-- **Framework:** Spring Boot 3 (Web, Data JPA, Validation)
-- **Banco de Dados:** H2 Database (Em memória, para agilidade nos testes)
-- **Ferramentas:** Lombok (Redução de boilerplate), Maven.
+### Backend (Core)
+- **Java 21 (LTS):** Linguagem base, escolhida pela estabilidade e suporte a novos recursos de linguagem.
+- **Spring Boot 3:** Framework principal (Web, Data JPA, Validation).
+- **Hibernate / JPA:** ORM para abstração de banco de dados e proteção nativa contra SQL Injection.
+- **H2 Database:** Banco em memória para testes de integração e desenvolvimento local (`profile: dev`).
+- **PostgreSQL:** Banco de dados relacional robusto para o ambiente de produção (`profile: prod`).
+- **Maven:** Gerenciamento de dependências e build.
 
-### Frontend
-- **Linguagem:** JavaScript Puro (Vanilla JS) - *Sem frameworks pesados.*
-- **Estilização:** Bootstrap 5.3 (Responsividade e Componentes).
-- **Gráficos:** Chart.js.
-- **Comunicação:** Fetch API para consumo dos endpoints REST.
-
-### Por que Spring Boot?
-A escolha foi estratégica para o desafio:
-1.  **Produtividade:** A configuração automática permitiu focar 100% na regra de negócio (distribuição de turmas).
-2.  **Embedded Server:** O Tomcat embutido facilita a execução da aplicação em qualquer ambiente sem instalações complexas.
-3.  **Ecossistema:** A integração nativa com JPA simplificou a modelagem complexa dos relacionamentos (Many-to-One).
+### Frontend (Client)
+- **Vanilla JS + Bootstrap:** Consumidor leve da API, sem frameworks pesados, demonstrando domínio de fundamentos da Web (DOM, Fetch API, Async/Await) e desacoplamento total entre cliente e servidor.
 
 ---
 
-## 🧩 Arquitetura e Decisões Técnicas
+## 📐 Arquitetura e Design
 
-### 1. Database Seeder Inteligente (`DatabaseSeeder.java`)
-Havia um desafio lógico nos dados originais: distribuir alunos entre 13 Séries diferentes tendo apenas 6 nomes de Turmas disponíveis.
-* **Solução:** Implementação de uma lógica de **Round Robin** (usando o operador resto `%`). Isso garante que todas as séries recebam turmas e nenhum aluno fique "órfão" ou sem classe no gráfico.
+O projeto segue rigorosamente o padrão **MVC (Model-View-Controller)** com camadas de serviço e repositório bem definidas.
 
-### 2. Otimização de Renderização (HTML Buffer)
-Para evitar travamentos no navegador (*freezing*) ao renderizar listas grandes (ex: geração de 900+ alunos), foi utilizada a técnica de **Buffer de String** no JavaScript.
-* **Solução:** Em vez de manipular o DOM a cada linha (`innerHTML +=` que causa *Reflow*), o HTML da tabela é montado inteiramente na memória e injetado na tela uma única vez.
+### Estrutura de Pacotes (Package Structure)
+
+```mermaid
+graph TD
+    subgraph Project [📂 school-system]
+        src[src/main/java]
+        
+        %% Packages
+        src --> controller[📂 controller]
+        src --> model[📂 model]
+        src --> repo[📂 repository]
+        src --> service[📂 service]
+        src --> dto[📂 dto]
+
+        %% Controllers
+        controller --> C1[StudentController]
+        controller --> C2[TeacherController]
+        controller --> C3[SchoolScheduleController]
+
+        %% Models
+        model --> M1[Student]
+        model --> M2[Teacher]
+        model --> M3[SchoolSchedule]
+        model --> M4[ClassEntity]
+
+        %% Repositories
+        repo --> R1[StudentRepository]
+        repo --> R2[TeacherRepository]
+        repo --> R3[SchoolSchedulerRepository]
+    end
+
+    style Project fill:#f9f9f9,stroke:#333,stroke-width:2px
+    style controller fill:#e3f2fd,stroke:#1565c0
+    style model fill:#fff9c4,stroke:#fbc02d
+    style repo fill:#e8f5e9,stroke:#2e7d32
+```
+
+### Diagrama de Classes de Domínio
+
+O diagrama abaixo ilustra os relacionamentos complexos ManyToOne (Muitos Para Um) gerenciados pelo JPA para vincular Professores, Matérias e Turmas na grade horária.
+
+```mermaid
+classDiagram
+    %% Relacionamentos
+    Student "*" --> "1" ClassEntity : Pertence a
+    ClassEntity "*" --> "1" Degree : Pertence a
+    
+    SchoolSchedule "*" --> "1" Teacher : Tem
+    SchoolSchedule "*" --> "1" Matter : Tem
+    SchoolSchedule "*" --> "1" ClassEntity : Tem
+
+    %% Classes Principais
+    class Student {
+        +Integer id
+        +String name
+        +Integer classId
+    }
+
+    class Teacher {
+        +Integer id
+        +String name
+        +String subject
+    }
+
+    class SchoolSchedule {
+        +Integer id
+        +Teacher teacher
+        +Matter matter
+        +ClassEntity classEntity
+    }
+
+    %% Cores
+    style Student fill:#fff9c4,stroke:#fbc02d
+    style Teacher fill:#fff9c4,stroke:#fbc02d
+    style SchoolSchedule fill:#ffe0b2,stroke:#f57c00
+```
 
 ---
 
-## 📦 Como Rodar o Projeto
+## Instalação e Execução
 
 ### Pré-requisitos
-- Java 17 instalado.
-- Maven (opcional, o projeto possui wrapper).
-- Porta 8080 livre.
+- Java 21+
+- Maven (Opcional, wrapper incluso no projeto)
+- Docker (Opcional, para containerização)
 
-### Passo a Passo
+### Rodando Localmente
 
-1. **Clone o repositório**
-   ```bash
-   git clone [https://github.com/seu-usuario/School-System.git](https://github.com/seu-usuario/School-System.git)
-   cd School-System
+Clone o repositório:
 
-   ## ⚙️ Execute a aplicação
+```bash
+git clone https://github.com/seu-usuario/school-system.git
+cd school-system
+```
 
-* **Via IntelliJ/Eclipse:** Abra o arquivo `SchoolSystemApplication.java` e clique em ▶️ **Run**.
-* **Via Terminal:**
-    ```bash
-    ./mvnw spring-boot:run
-    ```
+Execute a aplicação (usando Maven Wrapper):
 
-### Acesse no Navegador
-* **Tela de Alunos:** [http://localhost:8080/index.html](http://localhost:8080/index.html)
-* **Tela de Professores:** [http://localhost:8080/teachers.html](http://localhost:8080/teachers.html)
-* **Console do Banco H2:** [http://localhost:8080/h2-console](http://localhost:8080/h2-console)
+```bash
+./mvnw spring-boot:run
+```
+
+Acesse:
+- Aplicação Web: [http://localhost:8080](http://localhost:8080)
+- Swagger UI: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+- Console H2: [http://localhost:8080/h2-console](http://localhost:8080/h2-console)
 
 ---
 
-## 📚 Documentação da API
+## Documentação dos Endpoints (API Reference)
 
-Abaixo estão exemplos de como testar os endpoints principais via Postman ou Insomnia.
+A API segue os padrões REST. Abaixo estão os exemplos de corpo (body) JSON para as principais requisições.
 
-### 🎓 Students (Alunos)
+### Alunos (/students)
 
-| Método | Endpoint | Descrição |
-| :--- | :--- | :--- |
-| `GET` | `/students/all` | Lista todos os alunos. |
-| `POST` | `/students/create` | Cria um único aluno. |
-| `POST` | `/students/generate` | Gera 300 alunos aleatórios. |
-| `PUT` | `/students/update/{id}` | Atualiza dados do aluno. |
-| `DELETE` | `/students/delete/{id}` | Remove um aluno. |
+- Criar Aluno  
+  `POST /students/create`  
+  Body:
+  ```json
+  {
+    "name": "Roberto Silva",
+    "classId": 5
+  }
+  ```
 
-**JSON para Criar Aluno (POST):**
-```json
-{
-  "name": "Novo Aluno Exemplo",
-  "classId": 5
-}
+- Atualizar Aluno  
+  `PUT /students/update/{id}`  
+  Body:
+  ```json
+  {
+    "name": "Roberto Silva Junior",
+    "classId": 2
+  }
+  ```
+
+- Deletar Aluno  
+  `DELETE /students/delete/{id}`
+
+- Resetar Base de Dados (Limpeza)  
+  `DELETE /students/clear`
+
+### Professores (/teachers)
+
+- Criar Professor  
+  `POST /teachers/create`  
+  Body:
+  ```json
+  {
+    "name": "Prof. Girafales",
+    "subject": "Matemática Avançada"
+  }
+  ```
+
+- Atualizar Professor  
+  `PUT /teachers/update/{id}`  
+  Body:
+  ```json
+  {
+    "name": "Prof. Girafales",
+    "subject": "Física"
+  }
+  ```
+
+### Grade Horária (/schedule)
+
+Este endpoint gerencia a alocação de aulas, exigindo o relacionamento entre três entidades.
+
+- Criar Agendamento  
+  `POST /schedule/create`  
+  Nota: O payload deve conter os objetos aninhados com seus respectivos IDs.  
+  Body:
+  ```json
+  {
+    "teacher": { "id": 1 },
+    "matter": { "id": 2 },
+    "classEntity": { "id": 5 }
+  }
+  ```
+
+- Deletar Agendamento  
+  `DELETE /schedule/delete/{id}`
