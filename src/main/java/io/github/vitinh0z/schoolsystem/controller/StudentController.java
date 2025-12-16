@@ -1,11 +1,15 @@
 package io.github.vitinh0z.schoolsystem.controller;
 
-
 import io.github.vitinh0z.schoolsystem.dto.ClassStatsDTO;
 import io.github.vitinh0z.schoolsystem.model.ClassEntity;
 import io.github.vitinh0z.schoolsystem.model.Student;
 import io.github.vitinh0z.schoolsystem.repository.ClassRepository;
 import io.github.vitinh0z.schoolsystem.repository.StudentRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,18 +20,38 @@ import java.util.*;
 @RestController
 @RequestMapping("/students")
 @RequiredArgsConstructor
+@Tag(
+        name = "Student Controller",
+        description = "API responsável pelo gerenciamento de alunos e estatísticas relacionadas"
+)
 public class StudentController {
 
     private final ClassRepository classRepository;
     private final StudentRepository studentRepository;
 
-
+    @Operation(
+            summary = "Cria um aluno",
+            description = "Cria e persiste um novo aluno no sistema"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Aluno criado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    })
     @PostMapping("/create")
-    public ResponseEntity<Student> createStudent (@Valid @RequestBody Student student){
-
+    public ResponseEntity<Student> createStudent (
+            @Valid @RequestBody Student student
+    ){
         return ResponseEntity.ok(studentRepository.save(student));
     }
 
+    @Operation(
+            summary = "Gera alunos automaticamente",
+            description = "Gera uma lista de alunos fictícios distribuídos aleatoriamente entre as turmas existentes"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Alunos gerados com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Não existem turmas cadastradas")
+    })
     @PostMapping("/generate")
     public ResponseEntity<List<Student>> generateStudents (){
 
@@ -60,16 +84,30 @@ public class StudentController {
         return ResponseEntity.ok(students);
     }
 
+    @Operation(
+            summary = "Lista todos os alunos",
+            description = "Retorna todos os alunos cadastrados no sistema"
+    )
+    @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
     @GetMapping("/all")
     public ResponseEntity<List<Student>> getAllStudents() {
-
         return ResponseEntity.ok(studentRepository.findAll());
-    }   
+    }
 
+    @Operation(
+            summary = "Atualiza um aluno",
+            description = "Atualiza os dados de um aluno existente"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Aluno atualizado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Aluno não encontrado")
+    })
     @PutMapping("/update/{id}")
-    public ResponseEntity<Student> updateStudent( @PathVariable("id") Integer id,
-                                                  @Valid @RequestBody Student studentJson){
-
+    public ResponseEntity<Student> updateStudent(
+            @Parameter(description = "ID do aluno", example = "1")
+            @PathVariable("id") Integer id,
+            @Valid @RequestBody Student studentJson
+    ){
         Optional<Student> find = studentRepository.findById(id);
 
         if (find.isEmpty()){
@@ -83,12 +121,22 @@ public class StudentController {
 
         Student stundentSalvo = studentRepository.save(stundentBanco);
 
-         return ResponseEntity.ok(stundentSalvo);
+        return ResponseEntity.ok(stundentSalvo);
     }
 
+    @Operation(
+            summary = "Remove um aluno",
+            description = "Exclui um aluno com base no ID informado"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Aluno removido com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Aluno não encontrado")
+    })
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Student> deleteStudent(@PathVariable("id") Integer id){
-
+    public ResponseEntity<Student> deleteStudent(
+            @Parameter(description = "ID do aluno", example = "1")
+            @PathVariable("id") Integer id
+    ){
         Optional<Student> findStudent = studentRepository.findById(id);
 
         if(findStudent.isEmpty()){
@@ -102,6 +150,11 @@ public class StudentController {
         return ResponseEntity.ok(student);
     }
 
+    @Operation(
+            summary = "Dashboard de alunos por grau",
+            description = "Retorna estatísticas com a quantidade de alunos agrupados por grau"
+    )
+    @ApiResponse(responseCode = "200", description = "Estatísticas retornadas com sucesso")
     @GetMapping("dashboard/degree")
     public ResponseEntity<List<ClassStatsDTO>> getDashboardStatus(){
 
@@ -117,8 +170,6 @@ public class StudentController {
 
             classList.add(dto);
         }
-
         return ResponseEntity.ok(classList);
-
     }
 }
